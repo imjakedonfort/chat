@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Interactiv cu Jennifer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 400px;
+      max-width: 90%;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-header {
+      background: #4a90e2;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .chat-body {
+      padding: 15px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .message {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .message.player {
+      justify-content: flex-end;
+    }
+    .message.npc {
+      justify-content: flex-start;
+    }
+    .message .bubble {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      position: relative;
+      line-height: 1.4;
+    }
+    .message.player .bubble {
+      background: #4a90e2;
+      color: #fff;
+      border-bottom-right-radius: 0;
+    }
+    .message.npc .bubble {
+      background: #e5e5ea;
+      color: #000;
+      border-bottom-left-radius: 0;
+    }
+    .npc-profile {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .message.npc .bubble {
+      margin-left: 5px;
+    }
+    .typing {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .typing .dot {
+      width: 8px;
+      height: 8px;
+      background: #999;
+      border-radius: 50%;
+      margin: 0 3px;
+      opacity: 0.4;
+      animation: blink 1.2s infinite;
+    }
+    .typing .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .typing .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    @keyframes blink {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+      background: #fafafa;
+    }
+    .options button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #4a90e2;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .options button:hover {
+      background: #357ab8;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">Chat cu Jennifer</div>
+    <div id="chatBody" class="chat-body">
+      <!-- Mesajele vor fi adăugate dinamic aici -->
+    </div>
+    <div id="optionsContainer" class="options">
+      <!-- Butoanele cu opțiuni vor apărea aici -->
+    </div>
+  </div>
+
+  <script>
+    const chatBody = document.getElementById("chatBody");
+    const optionsContainer = document.getElementById("optionsContainer");
+
+    // Stare conversație
+    let conversationStep = 0;
+    let branchOption = null; // Pentru a salva alegerea din al doilea mesaj
+
+    // Funcție pentru a adăuga un mesaj în chat
+    function addMessage(sender, text) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+
+      if(sender === "npc"){
+        // Adaugă poza de profil (înlocuiește "jennifer.jpg" cu calea imaginii tale)
+        const img = document.createElement("img");
+        img.src = "jennifer.jpg";
+        img.alt = "Jennifer";
+        img.classList.add("npc-profile");
+        msgDiv.appendChild(img);
+      }
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.innerText = text;
+      msgDiv.appendChild(bubble);
+
+      chatBody.appendChild(msgDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Funcție pentru a afișa indicatorul de "typing"
+    function showTypingIndicator() {
+      const typingDiv = document.createElement("div");
+      typingDiv.classList.add("typing");
+      typingDiv.id = "typingIndicator";
+      // Cele 3 puncte
+      for(let i = 0; i < 3; i++){
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        typingDiv.appendChild(dot);
+      }
+      chatBody.appendChild(typingDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Elimină indicatorul de "typing"
+    function removeTypingIndicator() {
+      const typingDiv = document.getElementById("typingIndicator");
+      if(typingDiv){
+        chatBody.removeChild(typingDiv);
+      }
+    }
+
+    // Pregătește opțiunile pentru un pas dat
+    function showOptions(optionsArray) {
+      optionsContainer.innerHTML = "";
+      optionsArray.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt.text;
+        btn.addEventListener("click", () => {
+          // Elimină opțiunile la click
+          optionsContainer.innerHTML = "";
+          // Adaugă mesajul jucătorului
+          addMessage("player", opt.text);
+          // Procesăm pasul în funcție de starea conversației
+          processStep(opt.value);
+        });
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    // Funcție de procesare a pașilor conversației
+    function processStep(optionValue = null) {
+      conversationStep++;
+
+      // Primele două interacțiuni sunt cu opțiuni
+      if(conversationStep === 1) {
+        // Primul mesaj al jucătorului: alege din trei opțiuni
+        showOptions([
+          { text: "Hey, do you have a moment?", value: "option1" },
+          { text: "Jennifer?", value: "option2" },
+          { text: "Can we talk for a moment?", value: "option3" }
+        ]);
+      }
+      else if(conversationStep === 2) {
+        // NPC răspunde la primul mesaj, cu o întârziere de 6 secunde
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          addMessage("npc", "Sure, what's up?");
+          processStep();
+        }, 6000);
+      }
+      else if(conversationStep === 3) {
+        // Al doilea mesaj al jucătorului: alege din trei opțiuni
+        showOptions([
+          { text: "Remember when you told me you're going to the forest?", value: "branch1" },
+          { text: "It's about your last video...", value: "branch2" },
+          { text: "I received some strange messages from an Unknown number a few days ago...", value: "branch3" }
+        ]);
+      }
+      else if(conversationStep === 4) {
+        // Salvează alegerea pentru a decide răspunsul NPC
+        branchOption = optionValue;
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          if(branchOption === "branch3"){
+            addMessage("npc", "Really? Hm, what did that person say?");
+          } else {
+            addMessage("npc", "Go ahead");
+          }
+          processStep();
+        }, 3000);
+      }
+      // Mesaje ulterioare – conversația continuă automat
+      else if(conversationStep === 5) {
+        // Mesajul 5 din conversație (jucător)
+        setTimeout(() => {
+          addMessage("player", "I'm feeling a bit confused about everything.");
+          processStep();
+        }, 1000);
+      }
+      else if(conversationStep === 6) {
+        // Răspunsul NPC (mesaj 6)
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          addMessage("npc", "I understand, sometimes life gets complicated.");
+          processStep();
+        }, 3000);
+      }
+      else if(conversationStep === 7) {
+        setTimeout(() => {
+          addMessage("player", "Could you tell me more about your plans?");
+          processStep();
+        }, 1000);
+      }
+      else if(conversationStep === 8) {
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          addMessage("npc", "I might go hiking next weekend if the weather permits.");
+          processStep();
+        }, 3000);
+      }
+      else if(conversationStep === 9) {
+        setTimeout(() => {
+          addMessage("player", "That sounds interesting.");
+          processStep();
+        }, 1000);
+      }
+      else if(conversationStep === 10) {
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          addMessage("npc", "It really is, nature has a way of clearing the mind.");
+          processStep();
+        }, 3000);
+      }
+      else if(conversationStep === 11) {
+        setTimeout(() => {
+          addMessage("player", "I've noticed some changes in your recent posts.");
+          processStep();
+        }, 1000);
+      }
+      else if(conversationStep === 12) {
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          addMessage("npc", "Yes, I'm exploring new ideas and directions.");
+          processStep();
+        }, 3000);
+      }
+      else if(conversationStep === 13) {
+        setTimeout(() => {
+          addMessage("player", "Maybe we should catch up in person sometime.");
+          processStep();
+        }, 1000);
+      }
+      else if(conversationStep === 14) {
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          addMessage("npc", "I'd love that. Let's plan something soon.");
+          processStep();
+        }, 3000);
+      }
+      else if(conversationStep === 15) {
+        // Ultimul mesaj de la jucător
+        setTimeout(() => {
+          addMessage("player", "Looking forward to it, Jennifer.");
+          // Conversația se încheie aici
+          optionsContainer.innerHTML = "";
+        }, 1000);
+      }
+    }
+
+    // Pornim conversația: afișăm prima setare de opțiuni
+    processStep();
+  </script>
+</body>
+  </html
