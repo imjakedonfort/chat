@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chat Interactiv cu Jennifer</title>
+  <title>Chat</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -124,7 +124,7 @@
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">Chat cu Jennifer</div>
+    <div class="chat-header">Chat with Jennifer</div>
     <div id="chatBody" class="chat-body">
       <!-- Mesajele vor fi adăugate dinamic aici -->
     </div>
@@ -262,13 +262,13 @@
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          addMessage("npc", "I understand, sometimes life gets complicated.");
+          addMessage("npc", "I understand, keep going?");
           processStep();
         }, 3000);
       }
       else if(conversationStep === 7) {
         setTimeout(() => {
-          addMessage("player", "Could you tell me more about your plans?");
+          addMessage("player", "Some strange man messaged me saying that something is in that forest. And it's a bad idea for you to go there.");
           processStep();
         }, 1000);
       }
@@ -276,13 +276,13 @@
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          addMessage("npc", "I might go hiking next weekend if the weather permits.");
+          addMessage("npc", "Hm... What else did this person say?");
           processStep();
         }, 3000);
       }
       else if(conversationStep === 9) {
         setTimeout(() => {
-          addMessage("player", "That sounds interesting.");
+          addMessage("player", "I don't remember but... the way he was talking was so strange.");
           processStep();
         }, 1000);
       }
@@ -290,13 +290,13 @@
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          addMessage("npc", "It really is, nature has a way of clearing the mind.");
+          addMessage("npc", "Either he is trying to keep me away from this forest or trying to protect me... I'm not sure what to say about this yet.");
           processStep();
         }, 3000);
       }
       else if(conversationStep === 11) {
         setTimeout(() => {
-          addMessage("player", "I've noticed some changes in your recent posts.");
+          addMessage("player", "I asked him multiple times what's in the forest or who he is, but he kept talking 'nonsense'");
           processStep();
         }, 1000);
       }
@@ -304,13 +304,13 @@
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          addMessage("npc", "Yes, I'm exploring new ideas and directions.");
+          addMessage("npc", "I see. Well, I'll have to think about this... Let's hope this strange guy will text me too next time.");
           processStep();
         }, 3000);
       }
       else if(conversationStep === 13) {
         setTimeout(() => {
-          addMessage("player", "Maybe we should catch up in person sometime.");
+          addMessage("player", "If you're really going into the forest then... be careful. I'm not sure how safe it is..");
           processStep();
         }, 1000);
       }
@@ -318,14 +318,14 @@
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          addMessage("npc", "I'd love that. Let's plan something soon.");
+          addMessage("npc", "I will. See you then");
           processStep();
         }, 3000);
       }
       else if(conversationStep === 15) {
         // Ultimul mesaj de la jucător
         setTimeout(() => {
-          addMessage("player", "Looking forward to it, Jennifer.");
+          addMessage("player", "Bye");
           // Conversația se încheie aici
           optionsContainer.innerHTML = "";
         }, 1000);
