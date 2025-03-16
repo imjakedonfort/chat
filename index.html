@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat & Escape Room</title>
+  <title>Chat</title>
   <style>
     /* Stiluri generale pentru secțiuni */
     body {
@@ -11,7 +11,7 @@
       padding: 0;
       font-family: Arial, sans-serif;
     }
-    /* Containerul chat-ului */
+    /* Containerul Chat */
     #chatSection {
       display: flex;
       justify-content: center;
@@ -33,7 +33,7 @@
       height: 100vh;
       background-color: black;
     }
-    /* Stiluri pentru chat (copiate din primul cod) */
+    /* Stiluri pentru Chat (copiate din primul cod) */
     .chat-container {
       width: 400px;
       max-width: 90%;
@@ -73,25 +73,13 @@
       border-radius: 15px;
       position: relative;
       line-height: 1.4;
+      background: #e5e5ea;
+      color: #000;
     }
     .message.player .bubble {
       background: #4a90e2;
       color: #fff;
       border-bottom-right-radius: 0;
-    }
-    .message.npc .bubble {
-      background: #e5e5ea;
-      color: #000;
-      border-bottom-left-radius: 0;
-    }
-    .npc-profile {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-    .message.npc .bubble {
-      margin-left: 5px;
     }
     .typing {
       display: flex;
@@ -139,9 +127,10 @@
     .options button:hover {
       background: #357ab8;
     }
-    /* Stiluri pentru Escape Room (din al doilea cod) */
+    /* Stiluri pentru Escape Room */
     .forest {
-      background: url('forest-bg.jpg') no-repeat center center;
+      /* Acum folosește imaginea cu ochiul */
+      background: url('eye.jpg') no-repeat center center;
       background-size: cover;
       height: 100vh;
       position: relative;
@@ -178,7 +167,6 @@
         transform: translate(-50%, -50%) scale(1);
       }
     }
-    /* Final message fără redirecționare */
     .final-message {
       color: white;
       text-align: center;
@@ -189,10 +177,15 @@
       transform: translateX(-50%);
       display: none;
     }
-    /* Stil pentru chei */
+    /* Stil pentru chei (folosind emoji 🗝️) */
     .key {
       position: absolute;
+      font-size: 40px;
       cursor: pointer;
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      line-height: 50px;
     }
   </style>
 </head>
@@ -213,50 +206,41 @@
   <!-- Secțiunea Escape Room -->
   <div id="escapeRoomSection">
     <div class="forest">
-      <!-- Sunet de fundal pentru Escape Room -->
+      <!-- Sunet de fundal (vânt, crengi) -->
       <audio class="audio-background" autoplay loop>
         <source src="wind-and-crackling-branches.mp3" type="audio/mp3">
         Your browser does not support the audio element.
       </audio>
       <!-- Efectul glitch -->
       <div class="glitch">Episode 1 finished... Congratulations detective!</div>
-      <!-- Final message (se va afișa după rezolvarea puzzle-ului) -->
+      <!-- Final message -->
       <div class="final-message">
         Episode 1 finished... Congratulations detective!
       </div>
-      <!-- Cheile Escape Room -->
-      <div class="key" id="key1" style="top: 30%; left: 10%;">🌙</div>
-      <div class="key" id="key2" style="top: 50%; left: 40%;">💡</div>
-      <div class="key" id="key3" style="top: 70%; left: 70%;">☀️</div>
-      <div class="key" id="key4" style="top: 80%; left: 20%;">🔴</div>
+      <!-- Cheile ca emoji 🗝️ -->
+      <div class="key" id="key1" style="top: 30%; left: 10%;">🗝️</div>
+      <div class="key" id="key2" style="top: 50%; left: 40%;">🗝️</div>
+      <div class="key" id="key3" style="top: 70%; left: 70%;">🗝️</div>
+      <div class="key" id="key4" style="top: 80%; left: 20%;">🗝️</div>
     </div>
   </div>
 
   <script>
     /***********************
-     * Cod Chat Interactiv *
+     * Codul pentru Chat *
      ***********************/
     const chatBody = document.getElementById("chatBody");
     const optionsContainer = document.getElementById("optionsContainer");
 
-    // Stare conversație
     let conversationStep = 0;
-    let branchOption = null; // Pentru a salva alegerea din al doilea mesaj
+    let branchOption = null;
 
-    // Adaugă un mesaj în chat
+    // Funcția pentru a adăuga un mesaj în chat (fără poza de profil)
     function addMessage(sender, text) {
       const msgDiv = document.createElement("div");
       msgDiv.classList.add("message", sender);
 
-      if(sender === "npc"){
-        // Adaugă poza de profil (înlocuiește "jennifer.jpg" cu calea imaginii tale)
-        const img = document.createElement("img");
-        img.src = "jennifer.jpg";
-        img.alt = "Jennifer";
-        img.classList.add("npc-profile");
-        msgDiv.appendChild(img);
-      }
-
+      // Eliminăm poza de profil pentru NPC
       const bubble = document.createElement("div");
       bubble.classList.add("bubble");
       bubble.innerText = text;
@@ -266,12 +250,11 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Afișează indicatorul de "typing"
     function showTypingIndicator() {
       const typingDiv = document.createElement("div");
       typingDiv.classList.add("typing");
       typingDiv.id = "typingIndicator";
-      for(let i = 0; i < 3; i++){
+      for (let i = 0; i < 3; i++) {
         const dot = document.createElement("div");
         dot.classList.add("dot");
         typingDiv.appendChild(dot);
@@ -280,15 +263,13 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    // Elimină indicatorul de "typing"
     function removeTypingIndicator() {
       const typingDiv = document.getElementById("typingIndicator");
-      if(typingDiv){
+      if (typingDiv) {
         chatBody.removeChild(typingDiv);
       }
     }
 
-    // Afișează opțiunile pentru un anumit pas
     function showOptions(optionsArray) {
       optionsContainer.innerHTML = "";
       optionsArray.forEach(opt => {
@@ -303,39 +284,37 @@
       });
     }
 
-    // Procesează pașii conversației
     function processStep(optionValue = null) {
       conversationStep++;
 
-      if(conversationStep === 1) {
-        // Primul mesaj al jucătorului: selectează una din opțiuni
+      if (conversationStep === 1) {
         showOptions([
           { text: "Hey, do you have a moment?", value: "option1" },
           { text: "Jennifer?", value: "option2" },
           { text: "Can we talk for a moment?", value: "option3" }
         ]);
       }
-      else if(conversationStep === 2) {
+      else if (conversationStep === 2) {
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          addMessage("npc", "Hey, what's up?");
+          addMessage("npc", "Sure, what's up?");
           processStep();
         }, 6000);
       }
-      else if(conversationStep === 3) {
+      else if (conversationStep === 3) {
         showOptions([
           { text: "Remember when you told me you're going to the forest?", value: "branch1" },
           { text: "It's about your last video...", value: "branch2" },
           { text: "I received some strange messages from an Unknown number a few days ago...", value: "branch3" }
         ]);
       }
-      else if(conversationStep === 4) {
+      else if (conversationStep === 4) {
         branchOption = optionValue;
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
-          if(branchOption === "branch3"){
+          if (branchOption === "branch3") {
             addMessage("npc", "Really? Hm, what did that person say?");
           } else {
             addMessage("npc", "Go ahead");
@@ -343,13 +322,13 @@
           processStep();
         }, 3000);
       }
-      else if(conversationStep === 5) {
+      else if (conversationStep === 5) {
         setTimeout(() => {
           addMessage("player", "I'm feeling a bit confused about everything.");
           processStep();
         }, 1000);
       }
-      else if(conversationStep === 6) {
+      else if (conversationStep === 6) {
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
@@ -357,13 +336,13 @@
           processStep();
         }, 3000);
       }
-      else if(conversationStep === 7) {
+      else if (conversationStep === 7) {
         setTimeout(() => {
-          addMessage("player", "Some strange man messaged me saying that something is in that forest. And it's a bad idea for you to go there.");
+          addMessage("player", "Some strange man messaged me saying that something is in that forest. And it's a bad idea for you to go there");
           processStep();
         }, 1000);
       }
-      else if(conversationStep === 8) {
+      else if (conversationStep === 8) {
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
@@ -371,13 +350,13 @@
           processStep();
         }, 3000);
       }
-      else if(conversationStep === 9) {
+      else if (conversationStep === 9) {
         setTimeout(() => {
           addMessage("player", "I don't remember but... the way he was talking was so strange.");
           processStep();
         }, 1000);
       }
-      else if(conversationStep === 10) {
+      else if (conversationStep === 10) {
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
@@ -385,13 +364,13 @@
           processStep();
         }, 3000);
       }
-      else if(conversationStep === 11) {
+      else if (conversationStep === 11) {
         setTimeout(() => {
           addMessage("player", "I asked him multiple times what's in the forest or who he is, but he kept talking 'nonsense'");
           processStep();
         }, 1000);
       }
-      else if(conversationStep === 12) {
+      else if (conversationStep === 12) {
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
@@ -399,13 +378,13 @@
           processStep();
         }, 3000);
       }
-      else if(conversationStep === 13) {
+      else if (conversationStep === 13) {
         setTimeout(() => {
           addMessage("player", "If you're really going into the forest then... be careful. I'm not sure how safe it is..");
           processStep();
         }, 1000);
       }
-      else if(conversationStep === 14) {
+      else if (conversationStep === 14) {
         showTypingIndicator();
         setTimeout(() => {
           removeTypingIndicator();
@@ -413,11 +392,11 @@
           processStep();
         }, 3000);
       }
-      else if(conversationStep === 15) {
+      else if (conversationStep === 15) {
         setTimeout(() => {
-          addMessage("player", "Bye");
+          addMessage("player", "Bye..");
           optionsContainer.innerHTML = "";
-          // La finalul conversației, ascundem secțiunea de chat și afișăm Escape Room
+          // După terminarea conversației, ascundem Chat-ul și afișăm Escape Room
           document.getElementById("chatSection").style.display = "none";
           document.getElementById("escapeRoomSection").style.display = "block";
         }, 1000);
@@ -427,22 +406,20 @@
     // Pornim conversația
     processStep();
 
-    /*******************************
-     * Cod Escape Room (secțiunea) *
-     *******************************/
-    // Variabile pentru Escape Room
+    /********************************
+     * Cod pentru Escape Room *
+     ********************************/
     const glitchAudio = new Audio('glitch-sound.mp3');
     let keyOrder = [];
     const correctOrder = ['key1', 'key2', 'key3', 'key4'];
 
-    // Funcția care afișează mesajul final în Escape Room
     function showFinalMessage() {
-      // Pentru acest exemplu, vom afișa mesajul final fără redirecționare
       document.querySelector('.final-message').style.display = 'block';
       glitchAudio.play();
+      // Dacă dorești redirecționare, poți activa linia următoare
+      // setTimeout(() => { window.location.href = 'https://drive.google.com/your-image-link'; }, 5000);
     }
 
-    // Funcție de gestionare a interacțiunii cu cheile
     function handleKeyClick(key) {
       if (keyOrder.length < correctOrder.length) {
         keyOrder.push(key);
@@ -451,13 +428,12 @@
             showFinalMessage();
           }
         } else {
-          alert('Wrong order, try again!');
+          alert('You are the key!');
           keyOrder = [];
         }
       }
     }
 
-    // Setăm evenimentele pentru chei
     document.getElementById('key1').addEventListener('click', () => handleKeyClick('key1'));
     document.getElementById('key2').addEventListener('click', () => handleKeyClick('key2'));
     document.getElementById('key3').addEventListener('click', () => handleKeyClick('key3'));
